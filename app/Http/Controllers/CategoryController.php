@@ -87,11 +87,30 @@ class CategoryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Category  $category
+     * @param  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
+        // find the id
+        $category = \App\Category::findOrFail($id);
+        
+        // validate the request
+        $this->validating($request);
+
+        // set value to update
+        $category->name = $request->name;
+        $category->enable = (isset($request->enable) ? $request->enable : true);
+
+        // save update
+        if($category->save()){
+            // return json
+            return new CategoryResource($category);
+        }else{
+            return response()->json([
+                'msg' => 'Failed to update data',
+            ],422);        
+        }
         
     }
 
