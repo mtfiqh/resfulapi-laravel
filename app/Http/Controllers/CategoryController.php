@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Category;
 use Illuminate\Http\Request;
 
+// resource
+use \App\Http\Resources\Category as CategoryResource;
+
 class CategoryController extends Controller
 {
     /**
@@ -14,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        
     }
 
     /**
@@ -29,13 +32,27 @@ class CategoryController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
+     * 
+     * use CategoryResource for the response
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+        // validate new category
+        $this->validating($request);
+
+        $category = new \App\Category;
+        $category->name = $request->name;
+        $category->enable = (isset($request->enable) ? $request->enable : true);
+        
+        if($category->save()){
+            return new CategoryResource($category);
+        }else{
+            return response()->json([
+                'msg' => 'Failed to store in database',
+            ],503);
+        }
     }
 
     /**
@@ -81,5 +98,17 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         //
+    }
+
+    /**
+     * validate function untuk category
+     * @param Request $request
+     * 
+     */
+    private function validating(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required',
+        ]);
     }
 }
