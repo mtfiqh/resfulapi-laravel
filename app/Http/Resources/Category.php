@@ -19,8 +19,10 @@ class Category extends JsonResource
 
     public function with($request){
         return [
-            'version' => '1.0.0',
-            'Creator' => 'Muhammad Taufiq Hidayat',
+            'meta' =>[
+                'version' => '1.0.0',
+                'Creator' => 'Muhammad Taufiq Hidayat',
+            ],
         ];
     }
 }

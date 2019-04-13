@@ -17,7 +17,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        
+        //display 5 per page
+        $categories = \App\Category::paginate(5);
+
+        return new CategoryResource($categories);
     }
 
     /**
@@ -61,9 +64,12 @@ class CategoryController extends Controller
      * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function show(Category $category)
+    public function show($id)
     {
         //
+        $category = \App\Category::findOrFail($id);
+
+        return new CategoryResource($category);
     }
 
     /**
@@ -86,7 +92,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        
     }
 
     /**
