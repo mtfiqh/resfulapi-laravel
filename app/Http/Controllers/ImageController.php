@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Image;
 use Illuminate\Http\Request;
+use \App\Http\Resources\Image as ImageResource;
 
 class ImageController extends Controller
 {
@@ -14,7 +15,9 @@ class ImageController extends Controller
      */
     public function index()
     {
-        //
+        $images = \App\Image::paginate(5);
+        // dd($products);
+        return new ImageResource($images);
     }
 
     /**
@@ -44,9 +47,17 @@ class ImageController extends Controller
      * @param  \App\Image  $image
      * @return \Illuminate\Http\Response
      */
-    public function show(Image $image)
+    public function show($id)
     {
         //
+        $image = Image::find($id);
+        if(!$image){
+            return response([
+                'msg' => "Image not found",
+            ],404);
+        }
+
+        return new ImageResource($image);
     }
 
     /**

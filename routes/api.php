@@ -24,4 +24,7 @@ Route::prefix('v1')->group(function () {
     Route::resource('product', 'ProductController')->except('create','edit')->parameters([
         'product' => 'id',
     ]);
+    Route::resource('image', 'ImageController')->except('create','edit')->parameters([
+        'image' => 'id',
+    ]);
 });
