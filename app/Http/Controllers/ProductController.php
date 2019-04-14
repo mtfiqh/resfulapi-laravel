@@ -103,9 +103,67 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        //
+        // validatiing request
+        $this->validating($request);
+
+        /**
+         * save product to db first
+         * 
+         */
+        $product = \App\Product::findOrFail($id);
+        $product->name = $request->name;
+        $product->description = $request->description;
+        $product->enable = $request->has('enable') ? $request->enable : true;
+        $product->save();
+
+        // mengasumsikan category menggunakan select ajax search (jadi category sudah pasti ada).
+        if($request->has('categories')){
+            $product->categories()->sync($request->categories);
+        }
+
+        /**
+         * perlu menghapus dulu semua photo yang berhubungan dengan product
+         * untuk dilakukan update photo
+         * Beranggapan bahwa di front end akan menampilkan gambar yang sudah di store ke db
+         * Lalu mengirimkan lagi ke update (Jika tidak dihapus).
+         */
+        $product->images()->sync([]);
+
+        // check jika ada file images yang dikirim
+        if($request->hasFile('images')){
+            /**
+             * Jika ada file image
+             * save setiap data file image ke storage dan DB
+             * lalu attach hubungan antara images dan product di table pivot nya
+             */
+            foreach($request->images as $image){
+                $name = $image->getClientOriginalName();
+                $path = $image->store('photos');
+
+                $uploadImg = new \App\Image;
+                $uploadImg->name=$name;
+                $uploadImg->file=$path;
+                $uploadImg->enable=true;
+                $uploadImg->save();
+                $product->images()->attach($uploadImg);
+            }
+
+        }
+
+        /**
+         * Jika photo dipilih berdasarkan ID dari database Images,
+         * Untuk di sync dengan product
+         * pada table pivot image_product
+         */
+        if($request->has('imagesId')){
+            $product->images()->attach($request->imagesId);
+        }
+        
+        if($product->save()){
+            return new ProductResource($product);
+        }
     }
 
     /**
@@ -114,9 +172,9 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
-        //
+
     }
 
     private function validating(Request $request){
