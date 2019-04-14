@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Image;
 use Illuminate\Http\Request;
 use \App\Http\Resources\Image as ImageResource;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
@@ -75,9 +76,39 @@ class ImageController extends Controller
      * @param  \App\Image  $image
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Image $image)
+    public function update(Request $request, $id)
     {
         //
+        $image = Image::find($id);
+        if(!$image){
+            return response([
+                'msg' => 'Image not found',
+            ], 404);
+        }
+
+        $this->validating($request);
+        $name = $image->name;
+        /**
+         * check apakah ada file image
+         * jika tidak, maka tidak akan mengubah file
+         */
+        if($request->hasFile('image')){
+            Storage::delete($image->file);
+            $name = $request->image->getClientOriginalName();
+            $path = $request->image->store('photos');
+            $image->file = $path;
+        }
+        
+        $image->name = $request->name ? $request->name : $image->name;
+        $image->enable = $request->enable ? $request->enable : true;
+
+        if($image->save()){
+            return new ImageResource($image);
+        }else{
+            return response([
+                'msg' => 'some error',
+            ]);
+        }
     }
 
     /**
