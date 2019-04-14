@@ -11,34 +11,31 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\Product 
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        //display 5 per page
+        $products = \App\Product::paginate(5);
+        // dd($products);
+        return ProductResource::collection($products);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\Product 
      */
     public function store(Request $request)
     {
         // validatiing request
         $this->validating($request);
 
+        /**
+         * save product to db first
+         * 
+         */
         $product = new \App\Product;
         $product->name = $request->name;
         $product->description = $request->description;
@@ -90,22 +87,13 @@ class ProductController extends Controller
      * Display the specified resource.
      *
      * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\Product 
      */
-    public function show(Product $product)
+    public function show($id)
     {
-        //
-    }
+        $product = \App\Product::findOrFail($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        //
+        return new ProductResource($product);
     }
 
     /**
@@ -135,7 +123,7 @@ class ProductController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'description' => 'required',
-            // 'images.*' => 'image'
+            'images.*' => 'image'
         ]);
     }
 }
