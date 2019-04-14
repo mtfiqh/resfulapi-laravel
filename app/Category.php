@@ -13,7 +13,9 @@ class Category extends Model
 
     public $timestamps = false;
 
-    public function posts(){
-        return $this->belongsToMany('App\Post');
+
+    // has relationship to many with posts
+    public function products(){
+        return $this->belongsToMany('App\Product');
     }
 }

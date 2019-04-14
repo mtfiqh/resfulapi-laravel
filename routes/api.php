@@ -21,4 +21,7 @@ Route::prefix('v1')->group(function () {
     Route::resource('category', 'CategoryController')->except('create','edit')->parameters([
         'category' => 'id',
     ]);
+    Route::resource('product', 'ProductController')->except('create','edit')->parameters([
+        'product' => 'id',
+    ]);
 });
