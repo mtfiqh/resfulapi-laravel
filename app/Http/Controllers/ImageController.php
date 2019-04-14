@@ -21,16 +21,6 @@ class ImageController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -38,7 +28,24 @@ class ImageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //validating
+        $this->validating($request);
+
+        $imageNew = new \App\Image;
+        $name = $request->image->getClientOriginalName();
+        $path = $request->image->store('photos');
+
+        $imageNew->name = $request->name ? $request->name : $name;
+        $imageNew->file = $path;
+        $imageNew->enable = $request->enable ? $request->enable : true;
+
+        if($imageNew->save()){
+            return new ImageResource($imageNew);
+        }else{
+            return response([
+                'msg' => 'Failed to store image',
+            ],403);
+        }
     }
 
     /**
@@ -60,16 +67,6 @@ class ImageController extends Controller
         return new ImageResource($image);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Image  $image
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Image $image)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -92,5 +89,11 @@ class ImageController extends Controller
     public function destroy(Image $image)
     {
         //
+    }
+
+    private function validating(Request $request){
+        $this->validate($request, [
+            'image' => 'image'
+        ]);
     }
 }
