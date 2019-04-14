@@ -117,9 +117,26 @@ class ImageController extends Controller
      * @param  \App\Image  $image
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Image $image)
+    public function destroy($id)
     {
-        //
+        $image = Image::find($id);
+        if(!$image){
+            return response([
+                'msg' => "can't found image",
+            ],404);
+        }
+
+        if($image->delete()){
+            // delete file image on storage
+            Storage::delete($image->file);
+
+            return response([
+                'msg' => "berhasil dihapus",
+                'data' => new ImageResource($image),
+            ]);
+        }
+
+        
     }
 
     private function validating(Request $request){
