@@ -174,7 +174,23 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-
+        //
+        $product = \App\Product::find($id);
+        // jika product dengan id $id tidak ditemukan.
+        if(!$product){
+            return response([
+                'msg' =>"data not found",
+            ],404);
+        }
+        
+        if($product->delete()){
+            return response()->json([
+                'msg'=>"berhasil",
+                'data' => new ProductResource($product),
+            ]);
+        }else{
+            return response('Tidak Berhasil',400);
+        }
     }
 
     private function validating(Request $request){
