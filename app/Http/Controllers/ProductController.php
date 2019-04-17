@@ -81,6 +81,11 @@ class ProductController extends Controller
             return new ProductResource($product);
         }
 
+        // failed
+        return response([
+            'msg' => "gagal menyimpan product",
+        ],500);
+
     }
 
     /**
@@ -91,8 +96,13 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = \App\Product::findOrFail($id);
-
+        $product = \App\Product::find($id);
+        // jika product dengan id $id tidak ditemukan.
+        if(!$product){
+            return response([
+                'msg' =>"data not found",
+            ],404);
+        }
         return new ProductResource($product);
     }
 
@@ -112,13 +122,21 @@ class ProductController extends Controller
          * save product to db first
          * 
          */
-        $product = \App\Product::findOrFail($id);
+        $product = \App\Product::find($id);
+        // jika product dengan id $id tidak ditemukan.
+        if(!$product){
+            return response([
+                'msg' =>"data not found",
+            ],404);
+        }
+
         $product->name = $request->name;
         $product->description = $request->description;
         $product->enable = $request->has('enable') ? $request->enable : true;
         $product->save();
 
         // mengasumsikan category menggunakan select ajax search (jadi category sudah pasti ada).
+        // menerima ID category
         if($request->has('categories')){
             $product->categories()->sync($request->categories);
         }
@@ -129,7 +147,8 @@ class ProductController extends Controller
          * Beranggapan bahwa di front end akan menampilkan gambar yang sudah di store ke db
          * Lalu mengirimkan lagi ke update (Jika tidak dihapus).
          */
-        $product->images()->sync([]);
+        if($request->hasFile('images') || $request->has('imagesId'))
+            $product->images()->sync([]);
 
         // check jika ada file images yang dikirim
         if($request->hasFile('images')){
@@ -162,8 +181,15 @@ class ProductController extends Controller
         }
         
         if($product->save()){
-            return new ProductResource($product);
+            return response([
+                'msg' => "berhasil mengubah product",
+                'data' => new ProductResource($product)
+            ],201);
         }
+
+        return response([
+            'msg' => "gagal mengubah product",
+        ],500);
     }
 
     /**
@@ -185,12 +211,14 @@ class ProductController extends Controller
         
         if($product->delete()){
             return response()->json([
-                'msg'=>"berhasil",
+                'msg'=>"berhasil menghapus product",
                 'data' => new ProductResource($product),
             ]);
-        }else{
-            return response('Tidak Berhasil',400);
         }
+        // gagal menghapus
+        return response([
+            'msg'=>'Tidak berhasil menghapus product'
+        ],500);
     }
 
     private function validating(Request $request){
