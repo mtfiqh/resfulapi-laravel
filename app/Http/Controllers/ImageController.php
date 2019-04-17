@@ -44,8 +44,8 @@ class ImageController extends Controller
             return new ImageResource($imageNew);
         }else{
             return response([
-                'msg' => 'Failed to store image',
-            ],403);
+                'msg' => 'Gagal menyimpan gambar',
+            ],500);
         }
     }
 
@@ -61,7 +61,7 @@ class ImageController extends Controller
         $image = Image::find($id);
         if(!$image){
             return response([
-                'msg' => "Image not found",
+                'msg' => "Gambar tidak ditemukan",
             ],404);
         }
 
@@ -103,11 +103,11 @@ class ImageController extends Controller
         $image->enable = $request->enable ? $request->enable : true;
 
         if($image->save()){
-            return new ImageResource($image);
+            return response(new ImageResource($image),201);
         }else{
             return response([
-                'msg' => 'some error',
-            ]);
+                'msg' => 'Gagal di update',
+            ],500);
         }
     }
 
@@ -122,26 +122,35 @@ class ImageController extends Controller
         $image = Image::find($id);
         if(!$image){
             return response([
-                'msg' => "can't found image",
+                'msg' => "Gambar tidak ditemukan",
             ],404);
         }
 
         if($image->delete()){
             // delete file image on storage
-            Storage::delete($image->file);
+            if(Storage::delete($image->file)){
+                return response([
+                    'msg' => "Gambar berhasil dihapus",
+                    'data' => new ImageResource($image),
+                ],200);
+            }else{
+                return response([
+                    'msg' => "Gambar gagal dihapus dari storage",
+                    'data' => new ImageResource($image),
+                ],500);
+            }
 
-            return response([
-                'msg' => "berhasil dihapus",
-                'data' => new ImageResource($image),
-            ]);
         }
+        return response([
+            'msg' => 'Gambar gagal dihapus'
+        ],500);
 
         
     }
 
     private function validating(Request $request){
         $this->validate($request, [
-            'image' => 'image'
+            'image' => 'required|image'
         ]);
     }
 }
