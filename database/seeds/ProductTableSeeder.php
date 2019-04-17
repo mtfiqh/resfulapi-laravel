@@ -20,7 +20,7 @@ class ProductTableSeeder extends Seeder
 
             if($moreThanOneCategories){
                 $howMany = random_int(1, sizeof($categoriesIds)-1);
-                $categories = array_slice($categoriesIds, 0, $howMany); //pick max 3 categories
+                $categories = array_slice($categoriesIds, 0, $howMany); 
 
                 $product->categories()->attach($categories);
             }else{
@@ -31,11 +31,11 @@ class ProductTableSeeder extends Seeder
 
             $imagesIds = \App\Image::all()->pluck('id')->toArray();
 
-            shuffle($imagesIds); //shuffle the category of id
+            shuffle($imagesIds); //shuffle the image of id
 
             if($moreThanOneImages){
                 $howMany = random_int(1, sizeof($imagesIds)-1);
-                $images = array_slice($imagesIds, 0, $howMany); //pick max 3 categories
+                $images = array_slice($imagesIds, 0, $howMany);
 
                 $product->images()->attach($images);
             }else{
