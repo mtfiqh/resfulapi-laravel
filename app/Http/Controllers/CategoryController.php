@@ -42,9 +42,9 @@ class CategoryController extends Controller
         if($category->save()){
             return new CategoryResource($category);
         }else{
-            return response()->json([
-                'msg' => 'Failed to store in database',
-            ],503);
+            return response([
+                'msg' => 'Gagal menyimpan category baru di database'
+            ],500);
         }
     }
 
@@ -57,7 +57,13 @@ class CategoryController extends Controller
     public function show($id)
     {
         //
-        $category = \App\Category::findOrFail($id);
+        $category = \App\Category::find($id);
+        if(!$category){
+
+            return response([
+                'msg' => 'Category tidak ditemukan'
+            ],404);
+        }
 
         return new CategoryResource($category);
     }
@@ -72,7 +78,13 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         // find the id
-        $category = \App\Category::findOrFail($id);
+        $category = \App\Category::find($id);
+        if(!$category){
+
+            return response([
+                'msg' => 'Category tidak ditemukan'
+            ],404);
+        }
         
         // validate the request
         $this->validating($request);
@@ -84,11 +96,12 @@ class CategoryController extends Controller
         // save update
         if($category->save()){
             // return json
-            return new CategoryResource($category);
+            return response(new CategoryResource($category),201);
         }else{
-            return response()->json([
-                'msg' => 'Failed to update data',
-            ],422);        
+            return response([
+                'msg' => "Category gagal di update",
+                'data' => new CategoryResource($category),
+            ],500);        
         }
         
     }
@@ -102,15 +115,24 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         //
-        $category = \App\Category::findOrFail($id);
+        $category = \App\Category::find($id);
+
+        if(!$category){
+            return response([
+                'msg' => "category tidak dapat ditemukan",
+            ],404);
+        }
 
         if($category->delete()){
-            return response()->json([
-                'msg'=>"berhasil",
+            return response([
+                'msg'=>"Category berhasil di hapus",
                 'data' => new CategoryResource($category),
-            ]);
+            ],200);
         }else{
-            return response('Tidak Berhasil',400);
+            return response([
+                'msg' => "category gagal di hapus",
+                'data' => new CategoryResource($category),
+            ],500);
         }
     }
 
