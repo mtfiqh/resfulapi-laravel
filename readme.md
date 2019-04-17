@@ -198,7 +198,7 @@ cara menjalankan seed jalankan perintah, maka secara otomatis akan mengisi table
 
 | Domain | Method    | URI                  | Name             | Action                                          | Middleware |
 |---|---|---|---|---|---|
-|        | GET|HEAD  | /|                                       Closure  |                                        web        
+|        | GET/HEAD  | /|          |                             Closure  |                                        web        
 |        | GET/HEAD  | api/v1/category      | category.index   | App\Http\Controllers\CategoryController@index   | api        |
 |        | POST      | api/v1/category      | category.store   | App\Http\Controllers\CategoryController@store   | api        |
 |        | GET/HEAD  | api/v1/category/{id} | category.show    | App\Http\Controllers\CategoryController@show    | api        |
